@@ -93,7 +93,7 @@ const IndexPage = () => {
   }, [publicKey]);
 
   return (
-    <Layout title="Home | Steop STAKEhome">
+    <Layout title="Home | Step STAKEhome">
       <div className="w-full flex flex-col justify-center items-center">
         <div className="flex mt-2 mb-8">
           <StakeUnstake />
