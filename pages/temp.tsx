@@ -39,11 +39,8 @@ const IndexPage = () => {
     result: 0,
   });
 
-  const [stepAmount, setStepAmount] = useState(0.0);
-  const [xStepAmount, setXStepAmount] = useState(0.0);
-  const stakeAmount = action === "stake" ? stepAmount : xStepAmount;
-  const stakeBalance =
-    action === "stake" ? stepBalance.result : xStepBalance.result;
+  const [stakeAmount, setStakeAmount] = useState(0.62355878);
+  const [receiveAmount, setReceiveAmount] = useState(0.774903211);
 
   useEffect(() => {
     const getStepBalanceAsync = async () => {
@@ -56,7 +53,7 @@ const IndexPage = () => {
           publicKey
         );
         const usdcAccount = await getAccount(connection, usdcAccountAddress);
-        const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 9;
+        const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 6;
         setStepBalance({ result: balance, isLoading: false });
       } catch (err) {
         if (err instanceof TokenAccountNotFoundError) {
@@ -76,7 +73,7 @@ const IndexPage = () => {
           publicKey
         );
         const usdcAccount = await getAccount(connection, usdcAccountAddress);
-        const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 9;
+        const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 6;
         setXStepBalance({ result: balance, isLoading: false });
       } catch (err) {
         if (err instanceof TokenAccountNotFoundError) {
@@ -161,54 +158,6 @@ const IndexPage = () => {
             <div className="ml-auto text-gray">{`Balance: ${
               action === "stake" ? stepBalance.result : xStepBalance.result
             }`}</div>
-            <button
-              className="bg-darkGreen text-green mx-0.5 ml-2 p-0.5 text-xs rounded-sm hover:bg-green hover:text-black"
-              onClick={() => {
-                if (action === "stake") {
-                  setStepAmount(stepBalance.result / 2);
-                  setXStepAmount(
-                    parseFloat(
-                      ((stepBalance.result / 2) * STEP_TO_XSTEP_RATIO).toFixed(
-                        9
-                      )
-                    )
-                  );
-                } else {
-                  setXStepAmount(xStepBalance.result / 2);
-                  setStepAmount(
-                    parseFloat(
-                      ((xStepBalance.result / 2) * XSTEP_TO_STEP_RATIO).toFixed(
-                        9
-                      )
-                    )
-                  );
-                }
-              }}
-            >
-              HALF
-            </button>
-            <button
-              className="bg-darkGreen text-green mx-0.5 p-0.5 text-xs rounded-sm hover:bg-green hover:text-black"
-              onClick={() => {
-                if (action === "stake") {
-                  setStepAmount(stepBalance.result);
-                  setXStepAmount(
-                    parseFloat(
-                      (stepBalance.result * STEP_TO_XSTEP_RATIO).toFixed(9)
-                    )
-                  );
-                } else {
-                  setXStepAmount(xStepBalance.result);
-                  setStepAmount(
-                    parseFloat(
-                      (xStepBalance.result * XSTEP_TO_STEP_RATIO).toFixed(9)
-                    )
-                  );
-                }
-              }}
-            >
-              MAX
-            </button>
           </div>
           <div className="flex bg-black w-fill h-12 rounded-md p-4">
             <div className="flex items-center mr-auto">
@@ -221,33 +170,21 @@ const IndexPage = () => {
               type="number"
               id="numberInput"
               className="bg-dark text-white appearance-none border-none  text-center bg-transparent focus:outline-none text-right"
-              value={action === "stake" ? stepAmount : xStepAmount}
+              value={action === "stake" ? stakeAmount : receiveAmount}
               onChange={(e) => {
-                if (action === "stake") {
-                  setStepAmount(
-                    parseFloat(parseFloat(e.target.value).toFixed(9))
-                  );
-
-                  setXStepAmount(
-                    parseFloat(
-                      (
-                        parseFloat(e.target.value) * STEP_TO_XSTEP_RATIO
-                      ).toFixed(9)
-                    )
-                  );
-                } else {
-                  setXStepAmount(
-                    parseFloat(parseFloat(e.target.value).toFixed(9))
-                  );
-
-                  setStepAmount(
-                    parseFloat(
-                      (
-                        parseFloat(e.target.value) * XSTEP_TO_STEP_RATIO
-                      ).toFixed(9)
-                    )
-                  );
-                }
+                setStakeAmount(
+                  parseFloat(parseFloat(e.target.value).toFixed(9))
+                );
+                setReceiveAmount(
+                  parseFloat(
+                    (
+                      parseFloat(e.target.value) *
+                      (action === "stake"
+                        ? XSTEP_TO_STEP_RATIO
+                        : STEP_TO_XSTEP_RATIO)
+                    ).toFixed(9)
+                  )
+                );
               }}
             ></input>
           </div>
@@ -257,7 +194,7 @@ const IndexPage = () => {
           <div className="flex mb-2">
             <div className="text-sm">You receive</div>
             <div className="ml-auto text-gray">{`Balance: ${
-              action === "stake" ? xStepBalance.result : stepBalance.result
+              action === "stake" ? stepBalance.result : xStepBalance.result
             }`}</div>
           </div>
           <div className="flex bg-black w-fill h-12 rounded-md p-4">
@@ -271,33 +208,21 @@ const IndexPage = () => {
               type="number"
               id="numberInput"
               className="bg-dark text-white appearance-none border-none  text-center bg-transparent focus:outline-none text-right"
-              value={action === "stake" ? xStepAmount : stepAmount}
+              value={action === "unstake" ? stakeAmount : receiveAmount}
               onChange={(e) => {
-                if (action === "stake") {
-                  setStepAmount(
-                    parseFloat(parseFloat(e.target.value).toFixed(9))
-                  );
-
-                  setXStepAmount(
-                    parseFloat(
-                      (
-                        parseFloat(e.target.value) * STEP_TO_XSTEP_RATIO
-                      ).toFixed(9)
-                    )
-                  );
-                } else {
-                  setXStepAmount(
-                    parseFloat(parseFloat(e.target.value).toFixed(9))
-                  );
-
-                  setStepAmount(
-                    parseFloat(
-                      (
-                        parseFloat(e.target.value) * XSTEP_TO_STEP_RATIO
-                      ).toFixed(9)
-                    )
-                  );
-                }
+                setReceiveAmount(
+                  parseFloat(parseFloat(e.target.value).toFixed(9))
+                );
+                setStakeAmount(
+                  parseFloat(
+                    (
+                      parseFloat(e.target.value) *
+                      (action === "stake"
+                        ? STEP_TO_XSTEP_RATIO
+                        : XSTEP_TO_STEP_RATIO)
+                    ).toFixed(9)
+                  )
+                );
               }}
             ></input>
           </div>
@@ -306,14 +231,16 @@ const IndexPage = () => {
         <button
           className={
             stakeAmount > 0
-              ? stakeAmount > stakeBalance
-                ? "bg-dusk text-gray cursor-not-allowed w-[390px] h-12 rounded-sm "
-                : "bg-darkGreen text-green cursor-pointer w-[390px] h-12 rounded-sm  hover:bg-green hover:text-black transition-colors duration-200"
-              : "bg-dusk text-gray cursor-not-allowed w-[390px] h-12 rounded-sm "
+              ? stakeAmount >
+                (action === "stake" ? stepBalance.result : xStepBalance.result)
+                ? "bg-shadow text-gray cursor-not-allowed w-[390px] h-12 rounded-md "
+                : "bg-darkGreen text-green cursor-pointer w-[390px] h-12 rounded-md  hover:bg-green hover:text-black transition-colors duration-200"
+              : "bg-shadow text-gray cursor-not-allowed w-[390px] h-12 rounded-md "
           }
         >
           {stakeAmount > 0
-            ? stakeAmount > stakeBalance
+            ? stakeAmount >
+              (action === "stake" ? stepBalance.result : xStepBalance.result)
               ? `Insufficient ${action === "stake" ? "" : "x"}STEP balance`
               : "Stake"
             : "Enter Amount"}
