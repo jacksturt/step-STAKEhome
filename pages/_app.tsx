@@ -2,6 +2,7 @@
 import { AppProps } from "next/app";
 import React from "react";
 import "../styles/globals.css"; // Import your global styles here
+import "antd-notifications-messages/lib/styles/style.css";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 
 import {

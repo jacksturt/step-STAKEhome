@@ -19,7 +19,7 @@ import {
 import { IAsyncResult } from "../types";
 import { AnchorProvider, BN } from "@project-serum/anchor";
 import { emitPrice, stake, unstake } from "../onChain/instructions";
-
+import { notification } from "antd-notifications-messages";
 type Action = "stake" | "unstake";
 
 const IndexPage = () => {
@@ -113,6 +113,26 @@ const IndexPage = () => {
       getAllInfo();
     }
   }, [publicKey]);
+  const showNotification = (type) => {
+    notification({
+      type,
+      title: "The title",
+      position: "bottomLeft",
+      message: "The custom Render",
+      render: ({ message, style, className, icon, title }) => {
+        return (
+          <div style={{ ...style, background: "black" }} className={className}>
+            <h5 style={{ color: "white" }}>
+              <span>{icon}</span> {title}
+            </h5>
+            <p style={{ color: "white" }}>
+              <b>{message}</b>
+            </p>
+          </div>
+        );
+      },
+    });
+  };
 
   return (
     <Layout title="Home | Step STAKEhome">
@@ -327,38 +347,38 @@ const IndexPage = () => {
                 if (
                   stakeAmount > 0 &&
                   stakeAmount <= stakeBalance &&
-                  publicKey &&
-                  sendTransaction
+                  publicKey
                 ) {
-                  const provider = new AnchorProvider(
-                    connection,
-                    // @ts-ignore:
-                    window.solana,
-                    {}
-                  );
-                  if (action === "stake") {
-                    await stake(
-                      provider,
-                      publicKey,
-                      new BN(stakeAmount * 10 ** 9),
-                      sendTransaction
-                    );
-                  } else {
-                    await unstake(
-                      provider,
-                      publicKey,
-                      new BN(stakeAmount * 10 ** 9),
-                      sendTransaction
-                    );
-                  }
-                  getAllInfo();
+                  // const provider = new AnchorProvider(
+                  //   connection,
+                  //   // @ts-ignore:
+                  //   window.solana,
+                  //   {}
+                  // );
+                  // if (action === "stake") {
+                  //   await stake(
+                  //     provider,
+                  //     publicKey,
+                  //     new BN(stakeAmount * 10 ** 9),
+                  //     sendTransaction
+                  //   );
+                  // } else {
+                  //   await unstake(
+                  //     provider,
+                  //     publicKey,
+                  //     new BN(stakeAmount * 10 ** 9),
+                  //     sendTransaction
+                  //   );
+                  // }
+                  // getAllInfo();
+                  showNotification("info");
                 }
               }}
             >
               {stakeAmount > 0
                 ? stakeAmount > stakeBalance
                   ? `Insufficient ${action === "stake" ? "" : "x"}STEP balance`
-                  : "Stake"
+                  : `${action === "stake" ? "S" : "Uns"}take`
                 : "Enter Amount"}
             </button>
           </>
