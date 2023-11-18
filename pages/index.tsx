@@ -9,23 +9,20 @@ import Step from "../components/@icons/step";
 import Unstake from "../components/@icons/unstake";
 import XStepLogo from "../components/@icons/xstep";
 import Layout from "../components/Layout";
-import {
-  STEP_TOKEN_ADDRESS,
-  STEP_TO_XSTEP_RATIO,
-  XSTEP_TOKEN_ADDRESS,
-  XSTEP_TO_STEP_RATIO,
-} from "../utils/globals";
+import { STEP_TOKEN_ADDRESS, XSTEP_TOKEN_ADDRESS } from "../utils/globals";
 import {
   TokenAccountNotFoundError,
   getAccount,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import { IAsyncResult } from "../types";
+import { AnchorProvider, BN } from "@project-serum/anchor";
+import { emitPrice, stake } from "../onChain/instructions";
 
 type Action = "stake" | "unstake";
 
 const IndexPage = () => {
-  const { publicKey } = useWallet();
+  const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const [action, setAction] = useState<Action>("stake");
   const [isStakeHovered, setIsStakeHovered] = useState(false);
@@ -41,6 +38,8 @@ const IndexPage = () => {
 
   const [stepAmount, setStepAmount] = useState(0.0);
   const [xStepAmount, setXStepAmount] = useState(0.0);
+  const [stepPerXStep, setStepPerXStep] = useState(1.24);
+  const [xStepPerStep, setXStepPerStep] = useState(1.0 / 1.24);
   const stakeAmount = action === "stake" ? stepAmount : xStepAmount;
   const stakeBalance =
     action === "stake" ? stepBalance.result : xStepBalance.result;
@@ -86,9 +85,28 @@ const IndexPage = () => {
         }
       }
     };
+    const getPriceRatio = async () => {
+      if (!publicKey) {
+        return;
+      }
+      try {
+        const provider = new AnchorProvider(
+          connection,
+          // @ts-ignore:
+          window.solana,
+          {}
+        );
+        const ratio = await emitPrice(provider, publicKey, sendTransaction);
+        setXStepPerStep(ratio);
+        setStepPerXStep(1.0 / ratio);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     if (publicKey) {
       getStepBalanceAsync();
       getXStepBalanceAsync();
+      getPriceRatio();
     }
   }, [publicKey]);
 
@@ -168,18 +186,14 @@ const IndexPage = () => {
                   setStepAmount(stepBalance.result / 2);
                   setXStepAmount(
                     parseFloat(
-                      ((stepBalance.result / 2) * STEP_TO_XSTEP_RATIO).toFixed(
-                        9
-                      )
+                      ((stepBalance.result / 2) * stepPerXStep).toFixed(9)
                     )
                   );
                 } else {
                   setXStepAmount(xStepBalance.result / 2);
                   setStepAmount(
                     parseFloat(
-                      ((xStepBalance.result / 2) * XSTEP_TO_STEP_RATIO).toFixed(
-                        9
-                      )
+                      ((xStepBalance.result / 2) * xStepPerStep).toFixed(9)
                     )
                   );
                 }
@@ -193,16 +207,12 @@ const IndexPage = () => {
                 if (action === "stake") {
                   setStepAmount(stepBalance.result);
                   setXStepAmount(
-                    parseFloat(
-                      (stepBalance.result * STEP_TO_XSTEP_RATIO).toFixed(9)
-                    )
+                    parseFloat((stepBalance.result * stepPerXStep).toFixed(9))
                   );
                 } else {
                   setXStepAmount(xStepBalance.result);
                   setStepAmount(
-                    parseFloat(
-                      (xStepBalance.result * XSTEP_TO_STEP_RATIO).toFixed(9)
-                    )
+                    parseFloat((xStepBalance.result * xStepPerStep).toFixed(9))
                   );
                 }
               }}
@@ -230,9 +240,7 @@ const IndexPage = () => {
 
                   setXStepAmount(
                     parseFloat(
-                      (
-                        parseFloat(e.target.value) * STEP_TO_XSTEP_RATIO
-                      ).toFixed(9)
+                      (parseFloat(e.target.value) * stepPerXStep).toFixed(9)
                     )
                   );
                 } else {
@@ -242,9 +250,7 @@ const IndexPage = () => {
 
                   setStepAmount(
                     parseFloat(
-                      (
-                        parseFloat(e.target.value) * XSTEP_TO_STEP_RATIO
-                      ).toFixed(9)
+                      (parseFloat(e.target.value) * xStepPerStep).toFixed(9)
                     )
                   );
                 }
@@ -280,9 +286,7 @@ const IndexPage = () => {
 
                   setXStepAmount(
                     parseFloat(
-                      (
-                        parseFloat(e.target.value) * STEP_TO_XSTEP_RATIO
-                      ).toFixed(9)
+                      (parseFloat(e.target.value) * stepPerXStep).toFixed(9)
                     )
                   );
                 } else {
@@ -292,9 +296,7 @@ const IndexPage = () => {
 
                   setStepAmount(
                     parseFloat(
-                      (
-                        parseFloat(e.target.value) * XSTEP_TO_STEP_RATIO
-                      ).toFixed(9)
+                      (parseFloat(e.target.value) * xStepPerStep).toFixed(9)
                     )
                   );
                 }
@@ -311,6 +313,29 @@ const IndexPage = () => {
                 : "bg-darkGreen text-green cursor-pointer w-[390px] h-12 rounded-sm  hover:bg-green hover:text-black transition-colors duration-200"
               : "bg-dusk text-gray cursor-not-allowed w-[390px] h-12 rounded-sm "
           }
+          onClick={async () => {
+            if (
+              stakeAmount > 0 &&
+              stakeAmount <= stakeBalance &&
+              publicKey &&
+              sendTransaction
+            ) {
+              if (action === "stake") {
+                const provider = new AnchorProvider(
+                  connection,
+                  // @ts-ignore:
+                  window.solana,
+                  {}
+                );
+                await stake(
+                  provider,
+                  publicKey,
+                  new BN(stakeAmount * 10 ** 9),
+                  sendTransaction
+                );
+              }
+            }
+          }}
         >
           {stakeAmount > 0
             ? stakeAmount > stakeBalance
