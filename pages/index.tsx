@@ -18,7 +18,7 @@ import {
 } from "@solana/spl-token";
 import { IAsyncResult } from "../types";
 import { AnchorProvider, BN } from "@project-serum/anchor";
-import { emitPrice, stake } from "../onChain/instructions";
+import { emitPrice, stake, unstake } from "../onChain/instructions";
 
 type Action = "stake" | "unstake";
 
@@ -45,69 +45,72 @@ const IndexPage = () => {
   const stakeBalance =
     action === "stake" ? stepBalance.result : xStepBalance.result;
 
-  useEffect(() => {
-    const getStepBalanceAsync = async () => {
-      if (!publicKey) {
-        return;
-      }
-      try {
-        const usdcAccountAddress = getAssociatedTokenAddressSync(
-          new PublicKey(STEP_TOKEN_ADDRESS),
-          publicKey
-        );
-        const usdcAccount = await getAccount(connection, usdcAccountAddress);
-        const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 9;
-        setStepBalance({ result: balance, isLoading: false });
-      } catch (err) {
-        if (err instanceof TokenAccountNotFoundError) {
-          setStepBalance({ error: err, result: 0 });
-        } else {
-          console.error(err);
-        }
-      }
-    };
-    const getXStepBalanceAsync = async () => {
-      if (!publicKey) {
-        return;
-      }
-      try {
-        const usdcAccountAddress = getAssociatedTokenAddressSync(
-          new PublicKey(XSTEP_TOKEN_ADDRESS),
-          publicKey
-        );
-        const usdcAccount = await getAccount(connection, usdcAccountAddress);
-        const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 9;
-        setXStepBalance({ result: balance, isLoading: false });
-      } catch (err) {
-        if (err instanceof TokenAccountNotFoundError) {
-          setXStepBalance({ error: err, result: 0 });
-        } else {
-          console.error(err);
-        }
-      }
-    };
-    const getPriceRatio = async () => {
-      if (!publicKey) {
-        return;
-      }
-      try {
-        const provider = new AnchorProvider(
-          connection,
-          // @ts-ignore:
-          window.solana,
-          {}
-        );
-        const ratio = await emitPrice(provider, publicKey, sendTransaction);
-        setXStepPerStep(ratio);
-        setStepPerXStep(1.0 / ratio);
-      } catch (err) {
+  const getStepBalanceAsync = async () => {
+    if (!publicKey) {
+      return;
+    }
+    try {
+      const usdcAccountAddress = getAssociatedTokenAddressSync(
+        new PublicKey(STEP_TOKEN_ADDRESS),
+        publicKey
+      );
+      const usdcAccount = await getAccount(connection, usdcAccountAddress);
+      const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 9;
+      setStepBalance({ result: balance, isLoading: false });
+    } catch (err) {
+      if (err instanceof TokenAccountNotFoundError) {
+        setStepBalance({ error: err, result: 0 });
+      } else {
         console.error(err);
       }
-    };
+    }
+  };
+  const getXStepBalanceAsync = async () => {
+    if (!publicKey) {
+      return;
+    }
+    try {
+      const usdcAccountAddress = getAssociatedTokenAddressSync(
+        new PublicKey(XSTEP_TOKEN_ADDRESS),
+        publicKey
+      );
+      const usdcAccount = await getAccount(connection, usdcAccountAddress);
+      const balance = parseFloat(usdcAccount.amount.toString()) / 10.0 ** 9;
+      setXStepBalance({ result: balance, isLoading: false });
+    } catch (err) {
+      if (err instanceof TokenAccountNotFoundError) {
+        setXStepBalance({ error: err, result: 0 });
+      } else {
+        console.error(err);
+      }
+    }
+  };
+  const getPriceRatio = async () => {
+    if (!publicKey) {
+      return;
+    }
+    try {
+      const provider = new AnchorProvider(
+        connection,
+        // @ts-ignore:
+        window.solana,
+        {}
+      );
+      const ratio = await emitPrice(provider, publicKey, sendTransaction);
+      setXStepPerStep(ratio);
+      setStepPerXStep(1.0 / ratio);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const getAllInfo = async () => {
+    getStepBalanceAsync();
+    getXStepBalanceAsync();
+    getPriceRatio();
+  };
+  useEffect(() => {
     if (publicKey) {
-      getStepBalanceAsync();
-      getXStepBalanceAsync();
-      getPriceRatio();
+      getAllInfo();
     }
   }, [publicKey]);
 
@@ -327,20 +330,28 @@ const IndexPage = () => {
                   publicKey &&
                   sendTransaction
                 ) {
+                  const provider = new AnchorProvider(
+                    connection,
+                    // @ts-ignore:
+                    window.solana,
+                    {}
+                  );
                   if (action === "stake") {
-                    const provider = new AnchorProvider(
-                      connection,
-                      // @ts-ignore:
-                      window.solana,
-                      {}
-                    );
                     await stake(
                       provider,
                       publicKey,
                       new BN(stakeAmount * 10 ** 9),
                       sendTransaction
                     );
+                  } else {
+                    await unstake(
+                      provider,
+                      publicKey,
+                      new BN(stakeAmount * 10 ** 9),
+                      sendTransaction
+                    );
                   }
+                  getAllInfo();
                 }
               }}
             >
