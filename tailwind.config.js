@@ -20,6 +20,10 @@ module.exports = {
         'green': "#00f8b7",
         "darkGreen": "#003627"
       },
+      fontFamily: {
+        'sans': ['Jakarta Sans Plus', 'sans'],
+        'number': ['Space Mono', 'sans']
+      },
     },
   },
   plugins: [],

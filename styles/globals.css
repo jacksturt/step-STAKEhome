@@ -2,7 +2,7 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-
+@import "@fontsource/plus-jakarta-sans/400.css"; 
 
 /* wallet adapter styles */
 
@@ -357,8 +357,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-family: "DM Sans", "Roboto", "Helvetica Neue", Helvetica, Arial,
-      sans-serif;
+  font-family: "Plus Jakarta Sans";
     font-size: 14px;
     font-weight: 600;
     height: 48px;
@@ -374,3 +373,14 @@
   margin: 0;
 }
 
+body {
+  font-family: "Plus Jakarta Sans";
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  src: url('../public/fonts/Space_Mono/SpaceMono-Regular.ttf') format('truetype');
+  /* Add additional font weights and styles if available */
+  font-weight: normal;
+  font-style: normal;
+}

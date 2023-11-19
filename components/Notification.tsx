@@ -79,7 +79,9 @@ export const Notification = ({
               <div className="text-green mr-3 text-xl">-</div>
               <div className="flex gap-3 justify-center items-center text-white">
                 {action === "stake" ? <Step /> : <XStepLogo />}
-                <div className="text-lightGray">{stakeAmount.toFixed(9)}</div>
+                <div className="text-lightGray font-number">
+                  {stakeAmount.toFixed(9)}
+                </div>
                 {action === "stake" ? "STEP" : "xSTEP"}
               </div>
             </div>
@@ -89,7 +91,9 @@ export const Notification = ({
               <div className="text-green mr-3 text-xl">+</div>
               <div className="flex gap-3 justify-center items-center text-white">
                 {action === "stake" ? <XStepLogo /> : <Step />}
-                <div className="text-lightGray">{receiveAmount.toFixed(9)}</div>
+                <div className="text-lightGray font-number">
+                  {receiveAmount.toFixed(9)}
+                </div>
                 {action === "stake" ? "xSTEP" : "STEP"}
               </div>
             </div>

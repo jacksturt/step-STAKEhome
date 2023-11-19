@@ -135,7 +135,7 @@ const IndexPage = () => {
               <div className="flex items-center  mb-7">
                 <XStepLogo />
                 <div className="ml-2 mr-auto">xSTEP staking APY</div>
-                <div>14.41%</div>
+                <div className="font-number">14.41%</div>
               </div>
               <div className="mb-2">"Where is my staking reward?"</div>
               <div className="text-gray">
@@ -164,7 +164,7 @@ const IndexPage = () => {
                 }}
               >
                 <Stake enabled={action === "stake" || isStakeHovered} />
-                <div className="ml-2">Stake</div>
+                <div className="ml-2 text-sm">Stake</div>
               </div>
               <div
                 className={
@@ -183,13 +183,14 @@ const IndexPage = () => {
                 }}
               >
                 <Unstake enabled={action === "unstake" || isUnstakeHovered} />
-                <div className="ml-2">Unstake</div>
+                <div className="ml-2 text-sm">Unstake</div>
               </div>
             </div>
             <div className="w-[390px] mt-4 p-7 text-sm bg-shadow rounded-b-lg mb-4">
               <div className="flex mb-2">
                 <div className="text-sm">You stake</div>
-                <div className="ml-auto text-gray">{`Balance: ${
+                <div className="ml-auto text-gray">Balance:</div>
+                <div className="ml-1 text-gray font-number">{`${
                   action === "stake" ? stepBalance.result : xStepBalance.result
                 }`}</div>
                 <button
@@ -247,7 +248,7 @@ const IndexPage = () => {
                 <input
                   type="number"
                   id="numberInput"
-                  className="bg-dark text-white appearance-none border-none  text-center bg-transparent focus:outline-none text-right"
+                  className="bg-dark text-white appearance-none border-none  font-number bg-transparent focus:outline-none text-right"
                   value={action === "stake" ? stepAmount : xStepAmount}
                   onChange={(e) => {
                     if (action === "stake") {
@@ -279,7 +280,8 @@ const IndexPage = () => {
               </div>
               <div className="flex mb-2">
                 <div className="text-sm">You receive</div>
-                <div className="ml-auto text-gray">{`Balance: ${
+                <div className="ml-auto text-gray">Balance:</div>
+                <div className="ml-1 font-number text-gray">{`${
                   action === "stake" ? xStepBalance.result : stepBalance.result
                 }`}</div>
               </div>
@@ -293,7 +295,7 @@ const IndexPage = () => {
                 <input
                   type="number"
                   id="numberInput"
-                  className="bg-dark text-white appearance-none border-none  text-center bg-transparent focus:outline-none text-right"
+                  className="bg-dark text-white appearance-none border-none  font-number bg-transparent focus:outline-none text-right"
                   value={action === "stake" ? xStepAmount : stepAmount}
                   onChange={(e) => {
                     if (action === "stake") {
