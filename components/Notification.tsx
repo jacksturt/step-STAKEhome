@@ -1,6 +1,9 @@
+import { useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
 import { ElementType } from "antd-notifications-messages";
 import { Action } from "../pages";
 import CheckMark from "./@icons/CheckMark";
+import Disconnect from "./@icons/Disconnect";
 import Ellipses from "./@icons/Ellipses";
 import ExternalLinkIcon from "./@icons/ExternalLinkIcon";
 import Step from "./@icons/step";
@@ -15,14 +18,18 @@ export const Notification = ({
   stakeAmount,
   receiveAmount,
   signature,
+  icon,
+  publicKey,
 }: {
-  type: ElementType;
+  type: ElementType | "connect" | "disconnect";
   title?: string;
   message?: string;
   action?: Action;
   stakeAmount?: number;
   receiveAmount?: number;
   signature?: string;
+  icon?: string;
+  publicKey?: PublicKey;
 }) => {
   switch (type) {
     case "info":
@@ -110,6 +117,40 @@ export const Notification = ({
                 <ExternalLinkIcon />
               </div>
             )}
+          </div>
+        </div>
+      );
+    case "connect":
+      return (
+        <div className="flex bg-dawn rounded-lg p-6 mt-8">
+          <div className="mr-6 flex justify-center items-center">
+            <img src={icon} className="w-4 h-4" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-white">
+              {`Connected to ${
+                publicKey.toBase58().slice(0, 4) +
+                " ... " +
+                publicKey.toBase58().slice(-4)
+              }`}
+            </h1>
+          </div>
+        </div>
+      );
+    case "disconnect":
+      return (
+        <div className="flex bg-dawn rounded-lg p-6 mt-8">
+          <div className="mr-6 flex justify-center items-center">
+            <Disconnect />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-white">
+              {`Disconnected from ${
+                publicKey.toBase58().slice(0, 4) +
+                " ... " +
+                publicKey.toBase58().slice(-4)
+              }`}
+            </h1>
           </div>
         </div>
       );

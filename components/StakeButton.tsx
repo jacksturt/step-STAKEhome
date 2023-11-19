@@ -1,12 +1,12 @@
 import { AnchorProvider, BN } from "@project-serum/anchor";
 import { TransactionConfirmationStrategy } from "@solana/web3.js";
-import { notification } from "antd-notifications-messages";
 import { useState } from "react";
 import { Action, TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR } from "../pages";
 import { IAsyncResult } from "../types";
 import { Notification } from "./Notification";
 import { stake, unstake } from "../onChain/instructions";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { showNotification } from "../utils/notifications";
 
 export const StakeButton = ({
   action,
@@ -31,12 +31,7 @@ export const StakeButton = ({
   const receiveAmount = action === "stake" ? xStepAmount : stepAmount;
   const stakeBalance =
     action === "stake" ? stepBalance.result : xStepBalance.result;
-  const showNotification = (render: () => JSX.Element) => {
-    notification({
-      position: "bottomLeft",
-      render,
-    });
-  };
+
   return (
     <button
       className={

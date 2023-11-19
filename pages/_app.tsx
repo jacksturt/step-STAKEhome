@@ -3,7 +3,16 @@ import { AppProps } from "next/app";
 import React from "react";
 import "../styles/globals.css"; // Import your global styles here
 import "antd-notifications-messages/lib/styles/style.css";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import {
+  Coin98WalletAdapter,
+  LedgerWalletAdapter,
+  MathWalletAdapter,
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  SolongWalletAdapter,
+  TorusWalletAdapter,
+  XDEFIWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
 
 import {
   ConnectionProvider,
@@ -17,7 +26,19 @@ function MyApp({ Component, pageProps }: AppProps) {
       endpoint={MAINNET_RPC}
       config={{ commitment: "confirmed" }}
     >
-      <WalletProvider wallets={[new PhantomWalletAdapter()]} autoConnect>
+      <WalletProvider
+        wallets={[
+          new Coin98WalletAdapter(),
+          new LedgerWalletAdapter(),
+          new MathWalletAdapter(),
+          new PhantomWalletAdapter(),
+          new SolflareWalletAdapter(),
+          new SolongWalletAdapter(),
+          new TorusWalletAdapter(),
+          new XDEFIWalletAdapter(),
+        ]}
+        autoConnect
+      >
         <WalletModalProvider>
           <div className="bg-black h-[100vh] w-[100vw] text-white">
             {/* Causes a typescript error, but not a compilation error. Works as intended. */}

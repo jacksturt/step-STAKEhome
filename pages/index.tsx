@@ -15,6 +15,9 @@ export type Action = "stake" | "unstake";
 import { StaticInfo } from "../components/StaticInfo";
 import { StakeInputs } from "../components/StakeInputs";
 import { StakeButton } from "../components/StakeButton";
+import { showNotification } from "../utils/notifications";
+import { Notification } from "../components/Notification";
+
 export const TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR =
   "Token Account Not Initialized";
 
@@ -49,7 +52,7 @@ const getTokenAccountBalance = async (
 };
 
 const IndexPage = () => {
-  const { publicKey } = useWallet();
+  const { publicKey, wallet } = useWallet();
   const { connection } = useConnection();
   const [action, setAction] = useState<Action>("stake");
   const [stepBalance, setStepBalance] = useState<IAsyncResult<number>>({
@@ -65,9 +68,16 @@ const IndexPage = () => {
   const [xStepAmount, setXStepAmount] = useState(0.0);
   const [stepPerXStep, setStepPerXStep] = useState(1.24);
   const [xStepPerStep, setXStepPerStep] = useState(1.0 / 1.24);
+  const [previousPublicKey, setPreviousPublicKey] = useState<PublicKey>(null);
+  const [hasSentConnectedNotifcation, setHasSentConnectedNotifaction] =
+    useState(false);
+  const [hasSentDisconnectedNotifcation, setHasSentDisconnectedNotifaction] =
+    useState(false);
+  const [previousDisconnectListener, setPreviousDisconnectListner] =
+    useState(null);
 
   const getStepBalanceAsync = async () => {
-    if (!publicKey) {
+    if (!publicKey && !stepBalance.error) {
       return;
     }
     getTokenAccountBalance(
@@ -78,7 +88,7 @@ const IndexPage = () => {
     );
   };
   const getXStepBalanceAsync = async () => {
-    if (!publicKey) {
+    if (!publicKey && !xStepBalance.error) {
       return;
     }
     getTokenAccountBalance(
@@ -107,6 +117,45 @@ const IndexPage = () => {
       getAllInfo();
     }
   }, [publicKey]);
+
+  useEffect(() => {
+    if (wallet) {
+      wallet.adapter.addListener("connect", async () => {
+        if (wallet.adapter.publicKey && !hasSentConnectedNotifcation) {
+          setHasSentConnectedNotifaction(true);
+          // need to make a deep copy of the public key, because if we connect and disconnect quickly,
+          // the reference in the notifcation will be null, and cause an error
+          const deepCopyPK = new PublicKey(wallet.adapter.publicKey);
+          showNotification(() => (
+            <Notification
+              type="connect"
+              icon={wallet.adapter.icon}
+              publicKey={deepCopyPK}
+            />
+          ));
+          setPreviousPublicKey(deepCopyPK);
+        }
+      });
+      // need to keep track of previous disconnect listeners, and clear them as to not send a notification for each
+      // wallet that was connected at some point
+      if (previousDisconnectListener) {
+        wallet.adapter.removeListener(previousDisconnectListener);
+      }
+      const disconnectedListener = wallet.adapter.addListener(
+        "disconnect",
+        () => {
+          if (previousPublicKey && !hasSentDisconnectedNotifcation) {
+            setHasSentDisconnectedNotifaction(true);
+
+            showNotification(() => (
+              <Notification type="disconnect" publicKey={previousPublicKey} />
+            ));
+          }
+        }
+      );
+      setPreviousDisconnectListner(disconnectedListener);
+    }
+  }, [wallet, previousPublicKey]);
 
   return (
     <Layout title="Home | Step STAKEhome">
