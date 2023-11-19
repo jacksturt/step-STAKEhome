@@ -35,7 +35,7 @@ export const StakeButton = ({
   return (
     <button
       className={
-        stakeAmount > 0 && stakeAmount < stakeBalance && !isTransactionPending
+        stakeAmount > 0 && stakeAmount <= stakeBalance && !isTransactionPending
           ? "bg-darkGreen text-green cursor-pointer w-[390px] h-12 rounded-sm  hover:bg-green hover:text-black transition-colors duration-200"
           : "bg-dusk text-gray cursor-not-allowed w-[390px] h-12 rounded-sm "
       }
@@ -64,7 +64,7 @@ export const StakeButton = ({
                 sendTransaction,
                 // check if we need to initialize the toTokenAccount
                 xStepBalance.result === 0 &&
-                  xStepBalance.error.message ===
+                  xStepBalance.error?.message ===
                     TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR
               );
               showNotification(() => (
@@ -83,7 +83,7 @@ export const StakeButton = ({
                 sendTransaction,
                 // check if we need to initialize the toTokenAccount
                 stepBalance.result === 0 &&
-                  stepBalance.error.message ===
+                  stepBalance.error?.message ===
                     TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR
               );
               showNotification(() => (
