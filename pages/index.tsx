@@ -41,6 +41,7 @@ const IndexPage = () => {
   const [xStepAmount, setXStepAmount] = useState(0.0);
   const [stepPerXStep, setStepPerXStep] = useState(1.24);
   const [xStepPerStep, setXStepPerStep] = useState(1.0 / 1.24);
+  const [isTransactionPending, setIsTransactionPending] = useState(false);
   const stakeAmount = action === "stake" ? stepAmount : xStepAmount;
   const receiveAmount = action === "stake" ? xStepAmount : stepAmount;
   const stakeBalance =
@@ -326,10 +327,10 @@ const IndexPage = () => {
 
             <button
               className={
-                stakeAmount > 0
-                  ? stakeAmount > stakeBalance
-                    ? "bg-dusk text-gray cursor-not-allowed w-[390px] h-12 rounded-sm "
-                    : "bg-darkGreen text-green cursor-pointer w-[390px] h-12 rounded-sm  hover:bg-green hover:text-black transition-colors duration-200"
+                stakeAmount > 0 &&
+                stakeAmount < stakeBalance &&
+                !isTransactionPending
+                  ? "bg-darkGreen text-green cursor-pointer w-[390px] h-12 rounded-sm  hover:bg-green hover:text-black transition-colors duration-200"
                   : "bg-dusk text-gray cursor-not-allowed w-[390px] h-12 rounded-sm "
               }
               onClick={async () => {
@@ -407,7 +408,9 @@ const IndexPage = () => {
                 }
               }}
             >
-              {stakeAmount > 0
+              {isTransactionPending
+                ? "Approve Transactions From Your Wallet"
+                : stakeAmount > 0
                 ? stakeAmount > stakeBalance
                   ? `Insufficient ${action === "stake" ? "" : "x"}STEP balance`
                   : `${action === "stake" ? "S" : "Uns"}take`
