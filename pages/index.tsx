@@ -18,8 +18,9 @@ import {
 import { IAsyncResult } from "../types";
 import { AnchorProvider, BN } from "@project-serum/anchor";
 import { emitPrice, stake, unstake } from "../onChain/instructions";
-import { notification } from "antd-notifications-messages";
-type Action = "stake" | "unstake";
+import { ElementType, notification } from "antd-notifications-messages";
+export type Action = "stake" | "unstake";
+import { Notification } from "../components/Notification";
 
 const IndexPage = () => {
   const { publicKey, sendTransaction } = useWallet();
@@ -41,6 +42,7 @@ const IndexPage = () => {
   const [stepPerXStep, setStepPerXStep] = useState(1.24);
   const [xStepPerStep, setXStepPerStep] = useState(1.0 / 1.24);
   const stakeAmount = action === "stake" ? stepAmount : xStepAmount;
+  const receiveAmount = action === "stake" ? xStepAmount : stepAmount;
   const stakeBalance =
     action === "stake" ? stepBalance.result : xStepBalance.result;
 
@@ -112,24 +114,10 @@ const IndexPage = () => {
       getAllInfo();
     }
   }, [publicKey]);
-  const showNotification = (type) => {
+  const showNotification = (render: () => JSX.Element) => {
     notification({
-      type,
-      title: "The title",
       position: "bottomLeft",
-      message: "The custom Render",
-      render: ({ message, style, className, icon, title }) => {
-        return (
-          <div style={{ ...style, background: "black" }} className={className}>
-            <h5 style={{ color: "white" }}>
-              <span>{icon}</span> {title}
-            </h5>
-            <p style={{ color: "white" }}>
-              <b>{message}</b>
-            </p>
-          </div>
-        );
-      },
+      render,
     });
   };
 
@@ -355,25 +343,65 @@ const IndexPage = () => {
                     {}
                   );
                   let signature: TransactionConfirmationStrategy;
-                  if (action === "stake") {
-                    signature = await stake(
-                      provider,
-                      publicKey,
-                      new BN(stakeAmount * 10 ** 9),
-                      sendTransaction
-                    );
-                  } else {
-                    signature = await unstake(
-                      provider,
-                      publicKey,
-                      new BN(stakeAmount * 10 ** 9),
-                      sendTransaction
-                    );
+
+                  showNotification(() => (
+                    <Notification
+                      type="info"
+                      title="Approve transactions from your wallet"
+                    />
+                  ));
+                  try {
+                    if (action === "stake") {
+                      signature = await stake(
+                        provider,
+                        publicKey,
+                        new BN(stakeAmount * 10 ** 9),
+                        sendTransaction
+                      );
+                      showNotification(() => (
+                        <Notification
+                          type="info"
+                          title="You are staking step"
+                          message="confirmation in progress"
+                          signature={signature.signature}
+                        />
+                      ));
+                    } else {
+                      signature = await unstake(
+                        provider,
+                        publicKey,
+                        new BN(stakeAmount * 10 ** 9),
+                        sendTransaction
+                      );
+                      showNotification(() => (
+                        <Notification
+                          type="info"
+                          title="You are staking step"
+                          message="confirmation in progress"
+                          signature={signature.signature}
+                        />
+                      ));
+                    }
+                    await connection.confirmTransaction(signature);
+                    getAllInfo();
+                    showNotification(() => (
+                      <Notification
+                        type="success"
+                        action={action}
+                        signature={signature.signature}
+                        stakeAmount={stakeAmount}
+                        receiveAmount={receiveAmount}
+                      />
+                    ));
+                  } catch (e) {
+                    showNotification(() => (
+                      <Notification
+                        type="error"
+                        title="There was an error"
+                        message={e.message}
+                      />
+                    ));
                   }
-                  showNotification("info");
-                  await connection.confirmTransaction(signature);
-                  getAllInfo();
-                  showNotification("success");
                 }
               }}
             >

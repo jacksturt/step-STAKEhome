@@ -12,7 +12,9 @@ module.exports = {
     extend: {
       colors: {
         'gray': '#B2B2B2',
+        'lightGray': '#A2A2A2',
         "dusk": "#3D3D3D",
+        "dawn": "#202020",
         'shadow': "#141414",
         'dark': "#0A0A0A",
         'green': "#00f8b7",
