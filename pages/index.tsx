@@ -1,6 +1,5 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
-import Link from "next/link";
+import { PublicKey, TransactionConfirmationStrategy } from "@solana/web3.js";
 import React, { useEffect, useState } from "react";
 import DownArrow from "../components/@icons/downArrow";
 import Stake from "../components/@icons/stake";
@@ -349,29 +348,32 @@ const IndexPage = () => {
                   stakeAmount <= stakeBalance &&
                   publicKey
                 ) {
-                  // const provider = new AnchorProvider(
-                  //   connection,
-                  //   // @ts-ignore:
-                  //   window.solana,
-                  //   {}
-                  // );
-                  // if (action === "stake") {
-                  //   await stake(
-                  //     provider,
-                  //     publicKey,
-                  //     new BN(stakeAmount * 10 ** 9),
-                  //     sendTransaction
-                  //   );
-                  // } else {
-                  //   await unstake(
-                  //     provider,
-                  //     publicKey,
-                  //     new BN(stakeAmount * 10 ** 9),
-                  //     sendTransaction
-                  //   );
-                  // }
-                  // getAllInfo();
+                  const provider = new AnchorProvider(
+                    connection,
+                    // @ts-ignore:
+                    window.solana,
+                    {}
+                  );
+                  let signature: TransactionConfirmationStrategy;
+                  if (action === "stake") {
+                    signature = await stake(
+                      provider,
+                      publicKey,
+                      new BN(stakeAmount * 10 ** 9),
+                      sendTransaction
+                    );
+                  } else {
+                    signature = await unstake(
+                      provider,
+                      publicKey,
+                      new BN(stakeAmount * 10 ** 9),
+                      sendTransaction
+                    );
+                  }
                   showNotification("info");
+                  await connection.confirmTransaction(signature);
+                  getAllInfo();
+                  showNotification("success");
                 }
               }}
             >

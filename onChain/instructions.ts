@@ -16,6 +16,7 @@ import {
   LAMPORTS_PER_SOL,
   NONCE_ACCOUNT_LENGTH,
   TransactionSignature,
+  TransactionConfirmationStrategy,
 } from "@solana/web3.js";
 import {
   STAKING_PROGRAM_ID,
@@ -83,7 +84,7 @@ export const stake = async (
     connection: Connection,
     options?: SendTransactionOptions | undefined
   ) => Promise<TransactionSignature>
-) => {
+): Promise<TransactionConfirmationStrategy> => {
   const program = new Program<Stake>(
     IDL as unknown as Stake,
     STAKING_PROGRAM_ID,
@@ -128,8 +129,8 @@ export const stake = async (
     lastValidBlockHeight: lastValidBlockHeight,
   };
   const tx = new Transaction(txInfo).add(ix);
-  const res = await sendTransaction(tx, provider.connection);
-  return res;
+  const signature = await sendTransaction(tx, provider.connection);
+  return { signature, blockhash, lastValidBlockHeight };
 };
 
 export const unstake = async (
@@ -141,7 +142,7 @@ export const unstake = async (
     connection: Connection,
     options?: SendTransactionOptions | undefined
   ) => Promise<TransactionSignature>
-) => {
+): Promise<TransactionConfirmationStrategy> => {
   const program = new Program<Stake>(
     IDL as unknown as Stake,
     STAKING_PROGRAM_ID,
@@ -186,6 +187,6 @@ export const unstake = async (
     lastValidBlockHeight: lastValidBlockHeight,
   };
   const tx = new Transaction(txInfo).add(ix);
-  const res = await sendTransaction(tx, provider.connection);
-  return res;
+  const signature = await sendTransaction(tx, provider.connection);
+  return { signature, blockhash, lastValidBlockHeight };
 };

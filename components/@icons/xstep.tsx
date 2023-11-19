@@ -11,8 +11,8 @@ const XStepLogo = () => {
     >
       <circle cx="500" cy="500" r="500" fill="#5842CF" />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M767.565 654.045L767.554 345.007L499.667 190.329L499.679 499.49L231.864 654.1L499.762 808.757L767.403 654.248L767.565 654.342V654.155L767.66 654.1L767.565 654.045Z"
         fill="#64C557"
       />

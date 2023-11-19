@@ -26,8 +26,8 @@ const StepLogo = () => {
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M40.7111 32.897L40.7104 14.1069L24.4224 4.70221L24.4231 23.4998L8.1394 32.9003L24.4282 42.3038L40.7012 32.9094L40.7111 32.9151V32.9037L40.7169 32.9003L40.7111 32.897Z"
         fill="#64C557"
       />
