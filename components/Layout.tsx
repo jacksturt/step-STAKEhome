@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import Link from "next/link";
 import Head from "next/head";
 import StepLogo from "./@icons/logo";
 import dynamic from "next/dynamic";

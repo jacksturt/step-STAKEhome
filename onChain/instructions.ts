@@ -1,20 +1,10 @@
 import { Stake, IDL } from "./types";
-import * as anchor from "@project-serum/anchor";
-import { Program, Provider, AnchorProvider, BN } from "@project-serum/anchor";
+import { Program, AnchorProvider, BN } from "@project-serum/anchor";
 import {
   PublicKey,
-  ComputeBudgetProgram,
   Transaction,
-  Keypair,
-  SYSVAR_RENT_PUBKEY,
-  SystemProgram,
-  sendAndConfirmTransaction,
-  sendAndConfirmRawTransaction,
   VersionedTransaction,
   Connection,
-  NonceAccount,
-  LAMPORTS_PER_SOL,
-  NONCE_ACCOUNT_LENGTH,
   TransactionSignature,
   TransactionConfirmationStrategy,
 } from "@solana/web3.js";
@@ -29,26 +19,19 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import tweetnacl from "tweetnacl";
 
-export const emitPrice = async (
-  provider: AnchorProvider,
-  publicKey: PublicKey,
-  sendTransaction: (
-    transaction: Transaction | VersionedTransaction,
-    connection: Connection,
-    options?: SendTransactionOptions | undefined
-  ) => Promise<TransactionSignature>
-): Promise<number> => {
+export const emitPrice = async (connection: Connection): Promise<number> => {
   let ratio = 1.24;
-  const signatures = await provider.connection.getSignaturesForAddress(
+  const signatures = await connection.getSignaturesForAddress(
     new PublicKey(STAKING_PROGRAM_ID)
   );
   for (const signature of signatures) {
-    const parsedTransactionData =
-      await provider.connection.getParsedTransaction(signature.signature, {
+    const parsedTransactionData = await connection.getParsedTransaction(
+      signature.signature,
+      {
         commitment: "confirmed",
-      });
+      }
+    );
     const maybeTransactionType = parsedTransactionData?.meta?.logMessages?.[5];
     if (maybeTransactionType === "Program log: Instruction: EmitPrice") {
       const base64ProgramData =
