@@ -55,6 +55,7 @@ const IndexPage = () => {
   const { publicKey, wallet } = useWallet();
   const { connection } = useConnection();
   const [action, setAction] = useState<Action>("stake");
+  // Store the user's balances for STEP, xSTEP
   const [stepBalance, setStepBalance] = useState<IAsyncResult<number>>({
     isLoading: true,
     result: 0,
@@ -63,11 +64,13 @@ const IndexPage = () => {
     isLoading: true,
     result: 0,
   });
-
+  // Store the values for the two inputs
   const [stepAmount, setStepAmount] = useState(0.0);
   const [xStepAmount, setXStepAmount] = useState(0.0);
+  // Store the ratio of STEP to xSTEP, and vice-versa. Verbose for readability
   const [stepPerXStep, setStepPerXStep] = useState(1.24);
   const [xStepPerStep, setXStepPerStep] = useState(1.0 / 1.24);
+  // Variables for cleanly handling connect and disconnect notifactions
   const [previousPublicKey, setPreviousPublicKey] = useState<PublicKey>(null);
   const [hasSentConnectedNotifcation, setHasSentConnectedNotifaction] =
     useState(false);
@@ -98,6 +101,7 @@ const IndexPage = () => {
       setXStepBalance
     );
   };
+  // get and store ratio of STEP to xSTEP and vice versa
   const getPriceRatio = async () => {
     try {
       const ratio = await emitPrice(connection);
@@ -118,6 +122,7 @@ const IndexPage = () => {
     }
   }, [publicKey]);
 
+  // state management for wallet connect and disconnect actions
   useEffect(() => {
     if (wallet) {
       wallet.adapter.addListener("connect", async () => {

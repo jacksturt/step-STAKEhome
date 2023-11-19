@@ -1,3 +1,4 @@
+// type interface for async calls
 interface IAsyncResultBase {
   isLoading?: boolean;
   loadingPrompt?: string;

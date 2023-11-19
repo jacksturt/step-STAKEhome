@@ -22,6 +22,14 @@ import {
 } from "@solana/spl-token";
 
 export const emitPrice = async (connection: Connection): Promise<number> => {
+  // The approach here is one of three approaches I had, all of which were unsatisfactory. I chose this approach
+  // because it does not require a transaction to be sent. The first approach I thought (and worst) would be to have
+  // the user sign a transaction, and then parse the information from here. The second approach was similar,
+  // but involves using a self-signing wallet to call emitPrice, that way the user does not see the transaction
+  // this approach works consistently, and does not cost SOL, but will throw some 429 errors since we are basically
+  // pinging the RPC node until we get a transaction of type emitPrice. I would not use any of the approaches in a
+  // production app. Instead, I would set up some logic in a backend to call emitPrice with a self-signing wallet at
+  // a logical interval, and cache this value and send it to the frontend.
   let ratio = 1.24;
   const signatures = await connection.getSignaturesForAddress(
     new PublicKey(STAKING_PROGRAM_ID)
@@ -97,7 +105,6 @@ export const stake = async (
     [stepPK.toBuffer()],
     new PublicKey(STAKING_PROGRAM_ID)
   );
-  console.log("hashed", nonce);
   const ix = await program.methods
     .stake(nonce, amount)
     .accounts(accounts)
@@ -106,15 +113,13 @@ export const stake = async (
   const { blockhash, lastValidBlockHeight } =
     await provider.connection.getLatestBlockhash();
   const txInfo = {
-    /** The transaction fee payer */
     feePayer: publicKey,
-    /** A recent blockhash */
     blockhash: blockhash,
-    /** the last block chain can advance to before tx is exportd expired */
     lastValidBlockHeight: lastValidBlockHeight,
   };
   const tx = new Transaction(txInfo);
   if (initializeXStepAccount) {
+    // if the xSTEP token account does not exist, create it.
     const ix = await createAssociatedTokenAccountInstruction(
       publicKey,
       toTokenAccount,
@@ -167,7 +172,6 @@ export const unstake = async (
     [stepPK.toBuffer()],
     new PublicKey(STAKING_PROGRAM_ID)
   );
-  console.log("hashed", nonce);
   const ix = await program.methods
     .unstake(nonce, amount)
     .accounts(accounts)
@@ -176,15 +180,13 @@ export const unstake = async (
   const { blockhash, lastValidBlockHeight } =
     await provider.connection.getLatestBlockhash();
   const txInfo = {
-    /** The transaction fee payer */
     feePayer: publicKey,
-    /** A recent blockhash */
     blockhash: blockhash,
-    /** the last block chain can advance to before tx is exportd expired */
     lastValidBlockHeight: lastValidBlockHeight,
   };
   const tx = new Transaction(txInfo);
   if (initializeStepAccount) {
+    // if the STEP token account does not exist, create it.
     const ix = await createAssociatedTokenAccountInstruction(
       publicKey,
       toTokenAccount,

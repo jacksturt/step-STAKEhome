@@ -3,6 +3,7 @@ import Head from "next/head";
 import StepLogo from "./@icons/logo";
 import dynamic from "next/dynamic";
 import { useWallet } from "@solana/wallet-adapter-react";
+// need to dynamically import this component to prevent a hydration error
 const DynamicMultiButton = dynamic(
   () =>
     import("@solana/wallet-adapter-react-ui").then(

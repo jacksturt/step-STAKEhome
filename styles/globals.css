@@ -4,7 +4,7 @@
 @import 'tailwindcss/utilities';
 @import "@fontsource/plus-jakarta-sans/400.css"; 
 
-/* wallet adapter styles */
+/* wallet adapter styles - copied and modified from the base styles */
 
 
 .wallet-adapter-button-end-icon {
@@ -407,6 +407,8 @@
     border: solid 1px rgb(6, 214, 160);
   }
   
+  /* disable the up and down arrows in number inputs */
+
   #numberInput::-webkit-inner-spin-button,
 #numberInput::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -414,6 +416,8 @@
   margin: 0;
 }
 
+
+/* Set default font. There seems to be many Plus Jakarta Sans variations. I used the one that seemed the closest, but it is still a bit off */
 body {
   font-family: "Plus Jakarta Sans";
 }

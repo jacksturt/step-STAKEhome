@@ -45,6 +45,8 @@ export const StakeInputs = ({
             setAction("stake");
           }}
           onMouseEnter={() => {
+            // Interesting interaction I found here. Using the same 200ms timeout as in the transition above causes the icon/text to change colors at different intervals
+            // But with 100ms/200ms, they seem to match. This bug seems to also happen in the live version of the app when hovering these tabs
             setTimeout(() => setIsStakeHovered(true), 100);
           }}
           onMouseLeave={() => {
@@ -133,6 +135,7 @@ export const StakeInputs = ({
             className="bg-dark text-white appearance-none border-none  font-number bg-transparent focus:outline-none text-right"
             value={action === "stake" ? stepAmount : xStepAmount}
             onChange={(e) => {
+              // This can be done more succintly, but keeping it verbose for readability.
               if (action === "stake") {
                 setStepAmount(
                   parseFloat(parseFloat(e.target.value).toFixed(9))

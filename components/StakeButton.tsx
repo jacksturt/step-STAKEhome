@@ -62,6 +62,7 @@ export const StakeButton = ({
                 publicKey,
                 new BN(stakeAmount * 10 ** 9),
                 sendTransaction,
+                // check if we need to initialize the toTokenAccount
                 xStepBalance.result === 0 &&
                   xStepBalance.error.message ===
                     TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR
@@ -80,6 +81,7 @@ export const StakeButton = ({
                 publicKey,
                 new BN(stakeAmount * 10 ** 9),
                 sendTransaction,
+                // check if we need to initialize the toTokenAccount
                 stepBalance.result === 0 &&
                   stepBalance.error.message ===
                     TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR
@@ -119,12 +121,16 @@ export const StakeButton = ({
       }}
     >
       {isTransactionPending
-        ? "Approve Transactions From Your Wallet"
+        ? // Approve transaction window is open
+          "Approve Transactions From Your Wallet"
         : stakeAmount > 0
         ? stakeAmount > stakeBalance
-          ? `Insufficient ${action === "stake" ? "" : "x"}STEP balance`
-          : `${action === "stake" ? "S" : "Uns"}take`
-        : "Enter Amount"}
+          ? // User does not have sufficient balance to make request based on input balance
+            `Insufficient ${action === "stake" ? "" : "x"}STEP balance`
+          : // The user has entered a valid amount to stake or unstake
+            `${action === "stake" ? "S" : "Uns"}take`
+        : // The use has not entered an amount yet
+          "Enter Amount"}
     </button>
   );
 };
