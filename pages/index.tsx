@@ -15,6 +15,8 @@ export type Action = "stake" | "unstake";
 import { StaticInfo } from "../components/StaticInfo";
 import { StakeInputs } from "../components/StakeInputs";
 import { StakeButton } from "../components/StakeButton";
+export const TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR =
+  "Token Account Not Initialized";
 
 const getTokenAccountBalance = async (
   publicKey: PublicKey,
@@ -32,8 +34,15 @@ const getTokenAccountBalance = async (
     setTokenBalance({ result: balance, isLoading: false });
   } catch (err) {
     if (err instanceof TokenAccountNotFoundError) {
-      setTokenBalance({ error: err, result: 0 });
+      setTokenBalance({
+        error: new Error(TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR),
+        result: 0,
+      });
     } else {
+      setTokenBalance({
+        error: err,
+        result: 0,
+      });
       console.error(err);
     }
   }

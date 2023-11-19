@@ -16,6 +16,7 @@ import {
 } from "../utils/globals";
 import { SendTransactionOptions } from "@solana/wallet-adapter-base";
 import {
+  createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -66,7 +67,8 @@ export const stake = async (
     transaction: Transaction | VersionedTransaction,
     connection: Connection,
     options?: SendTransactionOptions | undefined
-  ) => Promise<TransactionSignature>
+  ) => Promise<TransactionSignature>,
+  initializeXStepAccount?: boolean
 ): Promise<TransactionConfirmationStrategy> => {
   const program = new Program<Stake>(
     IDL as unknown as Stake,
@@ -91,7 +93,7 @@ export const stake = async (
     xTokenTo: toTokenAccount,
     tokenProgram: TOKEN_PROGRAM_ID,
   };
-  const [programId, nonce] = PublicKey.findProgramAddressSync(
+  const [_programId, nonce] = PublicKey.findProgramAddressSync(
     [stepPK.toBuffer()],
     new PublicKey(STAKING_PROGRAM_ID)
   );
@@ -111,7 +113,18 @@ export const stake = async (
     /** the last block chain can advance to before tx is exportd expired */
     lastValidBlockHeight: lastValidBlockHeight,
   };
-  const tx = new Transaction(txInfo).add(ix);
+  const tx = new Transaction(txInfo);
+  if (initializeXStepAccount) {
+    const ix = await createAssociatedTokenAccountInstruction(
+      publicKey,
+      toTokenAccount,
+      publicKey,
+      new PublicKey(XSTEP_TOKEN_ADDRESS)
+    );
+    tx.add(ix);
+  }
+
+  tx.add(ix);
   const signature = await sendTransaction(tx, provider.connection);
   return { signature, blockhash, lastValidBlockHeight };
 };
@@ -124,7 +137,8 @@ export const unstake = async (
     transaction: Transaction | VersionedTransaction,
     connection: Connection,
     options?: SendTransactionOptions | undefined
-  ) => Promise<TransactionSignature>
+  ) => Promise<TransactionSignature>,
+  initializeStepAccount?: boolean
 ): Promise<TransactionConfirmationStrategy> => {
   const program = new Program<Stake>(
     IDL as unknown as Stake,
@@ -149,7 +163,7 @@ export const unstake = async (
     tokenTo: toTokenAccount,
     tokenProgram: TOKEN_PROGRAM_ID,
   };
-  const [programId, nonce] = PublicKey.findProgramAddressSync(
+  const [_programId, nonce] = PublicKey.findProgramAddressSync(
     [stepPK.toBuffer()],
     new PublicKey(STAKING_PROGRAM_ID)
   );
@@ -169,7 +183,17 @@ export const unstake = async (
     /** the last block chain can advance to before tx is exportd expired */
     lastValidBlockHeight: lastValidBlockHeight,
   };
-  const tx = new Transaction(txInfo).add(ix);
+  const tx = new Transaction(txInfo);
+  if (initializeStepAccount) {
+    const ix = await createAssociatedTokenAccountInstruction(
+      publicKey,
+      toTokenAccount,
+      publicKey,
+      new PublicKey(STEP_TOKEN_ADDRESS)
+    );
+    tx.add(ix);
+  }
+  tx.add(ix);
   const signature = await sendTransaction(tx, provider.connection);
   return { signature, blockhash, lastValidBlockHeight };
 };

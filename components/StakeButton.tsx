@@ -2,7 +2,7 @@ import { AnchorProvider, BN } from "@project-serum/anchor";
 import { TransactionConfirmationStrategy } from "@solana/web3.js";
 import { notification } from "antd-notifications-messages";
 import { useState } from "react";
-import { Action } from "../pages";
+import { Action, TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR } from "../pages";
 import { IAsyncResult } from "../types";
 import { Notification } from "./Notification";
 import { stake, unstake } from "../onChain/instructions";
@@ -66,7 +66,10 @@ export const StakeButton = ({
                 provider,
                 publicKey,
                 new BN(stakeAmount * 10 ** 9),
-                sendTransaction
+                sendTransaction,
+                xStepBalance.result === 0 &&
+                  xStepBalance.error.message ===
+                    TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR
               );
               showNotification(() => (
                 <Notification
@@ -81,7 +84,10 @@ export const StakeButton = ({
                 provider,
                 publicKey,
                 new BN(stakeAmount * 10 ** 9),
-                sendTransaction
+                sendTransaction,
+                stepBalance.result === 0 &&
+                  stepBalance.error.message ===
+                    TOKEN_ACCOUNT_NOT_INITIALIZED_ERROR
               );
               showNotification(() => (
                 <Notification
