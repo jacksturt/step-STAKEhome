@@ -34,12 +34,7 @@ const Layout = ({ children, title = "This is the default title" }: Props) => {
           </div>
           {/* Causes a typescript error, but not a compilation error. Works as intended. */}
           {/* @ts-ignore  */}
-          <DynamicMultiButton
-            className="flex !h-9 !py-2 !px-3 items-center justify-center gap-2
-                !bg-transparent !border-neutral200 !border !border-solid
-                !text-neutral500 !text-xs !rounded-md !whitespace-nowrap !font-base"
-            startIcon={undefined}
-          >
+          <DynamicMultiButton startIcon={undefined}>
             {publicKey
               ? publicKey.toBase58().slice(0, 4) +
                 " ... " +
